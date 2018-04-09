@@ -74,7 +74,7 @@ public class GeneratorUtils {
     public static int calculateTextLines(String text, long cellWidth, int style) {
         if (text == null || text.isEmpty()) return 1;
 
-        Font currFont = new Font("Times New Roman", style, 10);
+        Font currFont = new Font("Times New Roman", style, 6);
         AttributedString attrStr = new AttributedString(text);
         attrStr.addAttribute(TextAttribute.FONT, currFont);
 

@@ -2,7 +2,10 @@ package ru.fx.develop.renovation.generator.writer;
 
 import com.google.common.collect.Lists;
 import org.apache.poi.util.Units;
-import org.apache.poi.xslf.usermodel.*;
+import org.apache.poi.xslf.usermodel.XMLSlideShow;
+import org.apache.poi.xslf.usermodel.XSLFAutoShape;
+import org.apache.poi.xslf.usermodel.XSLFSlide;
+import org.apache.poi.xslf.usermodel.XSLFTable;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTableCol;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTableRow;
 import ru.fx.develop.renovation.generator.GeneratorUtils;
@@ -23,8 +26,8 @@ public class VeteranOrgWriter extends RowWriter {
         this.prevTableRect = slide.getShapes().get(5).getAnchor().getBounds();
     }
 
-    public void writeRow(Map model){
-        if (totalData == null){
+    public void writeRow(Map model) {
+        if (totalData == null) {
             writeTotal();
             totalData.reset();
         }
@@ -32,7 +35,10 @@ public class VeteranOrgWriter extends RowWriter {
         CTTableRow newRow = table.getCTTable().addNewTr();
         newRow.set(table.getCTTable().getTrArray(1));
 
-        BigDecimal square = (BigDecimal)model.get("square");
+        List<Long> cellsWidth = table.getCTTable().getTblGrid().getGridColList().stream().map(CTTableCol::getW).collect(Collectors.toList());
+        newRow.setH(GeneratorUtils.calculateRowHeight(newRow, cellsWidth));
+
+        BigDecimal square = (BigDecimal) model.get("square");
         String squareOFormString = (String) model.get("sqrOForm");
         BigDecimal squareOForm = StringToBigDecimal.toBigDecimal(squareOFormString);
 
@@ -44,18 +50,14 @@ public class VeteranOrgWriter extends RowWriter {
         GeneratorUtils.addCellText(newRow, 3, squareOForm);
         //mergeCells();
 
-        List<Long> cellsWidth = table.getCTTable().getTblGrid().getGridColList().stream().map(CTTableCol::getW).collect(Collectors.toList());
-        newRow.setH(GeneratorUtils.calculateRowHeight(newRow, cellsWidth));
-
         if (needTableBreak()) {
             table.getCTTable().removeTr(table.getCTTable().sizeOfTrArray() - 1);
             sliceTable();
             writeRow(model);
-        }else {
+        } else {
             totalData.add(square);
         }
     }
-
 
 
     @Override
@@ -95,12 +97,6 @@ public class VeteranOrgWriter extends RowWriter {
     public void sliceTable() {
         endSlideTable();
 
-        if (shapesToDelete.get(slide) != null) {
-            shapesToDelete.get(slide).add(slide.getShapes().get(5));
-        } else {
-            shapesToDelete.put(slide, Lists.newArrayList(slide.getShapes().get(5)));
-        }
-
         XSLFSlide newSlide = pptx.createSlide();
         newSlide.importContent(pptx.getSlides().get(0));
 
@@ -108,17 +104,17 @@ public class VeteranOrgWriter extends RowWriter {
         prevTableRect = captionShape.getAnchor().getBounds();
         captionShape.getXmlObject().set(slide.getShapes().get(0).getXmlObject().copy());
 
-        Integer lastPageNumber = Integer.parseInt(((XSLFTextBox) slide.getShapes().get(5)).getText());
-        XSLFTextBox pageNUmberBox = (XSLFTextBox) newSlide.getShapes().get(1);
-        pageNUmberBox.setText("" + (lastPageNumber + 1));
+//        Integer lastPageNumber = Integer.parseInt(((XSLFTextBox) slide.getShapes().get(5)).getText());
+//        XSLFTextBox pageNUmberBox = (XSLFTextBox) newSlide.getShapes().get(1);
+//        pageNUmberBox.setText("" + (lastPageNumber + 1));
 
         slide = newSlide;
         table = (XSLFTable) slide.getShapes().get(5);
 
         if (shapesToDelete.get(slide) != null) {
-            shapesToDelete.get(slide).add(slide.getShapes().get(5));
+            shapesToDelete.get(slide).add(slide.getShapes().get(4));
         } else {
-            shapesToDelete.put(slide, Lists.newArrayList(slide.getShapes().get(5)));
+            shapesToDelete.put(slide, Lists.newArrayList(slide.getShapes().get(4)));
         }
     }
 

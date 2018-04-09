@@ -1,12 +1,18 @@
 package ru.fx.develop.renovation.generator.writer;
 
 import com.google.common.collect.Lists;
-import org.apache.poi.xslf.usermodel.*;
+import org.apache.poi.util.Units;
+import org.apache.poi.xslf.usermodel.XMLSlideShow;
+import org.apache.poi.xslf.usermodel.XSLFAutoShape;
+import org.apache.poi.xslf.usermodel.XSLFSlide;
+import org.apache.poi.xslf.usermodel.XSLFTable;
+import org.openxmlformats.schemas.drawingml.x2006.main.CTTable;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTableCol;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTableRow;
 import ru.fx.develop.renovation.generator.GeneratorUtils;
 import ru.fx.develop.renovation.util.UtilDisabledPerson;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -22,17 +28,12 @@ public class DisabledPersonWriter extends RowWriter {
 
     @Override
     public void writeRow(Map model) {
-//        if (countData != null){
-//            writeTotal();
-//            writeCountFirstGroup();
-//            writeCountSecondGroup();
-//            writeCountThreeGroup();
-//            writeCountFourGroup();
-//            countData.reset();
-//        }
 
         CTTableRow newRow = table.getCTTable().addNewTr();
         newRow.set(table.getCTTable().getTrArray(1));//строка запонения с данными на шаблоне под номер 1(счет сверху 0,1,2 зависит от количества строк в таблице)
+
+        List<Long> cellsWidth = table.getCTTable().getTblGrid().getGridColList().stream().map(CTTableCol::getW).collect(Collectors.toList());
+        newRow.setH(GeneratorUtils.calculateRowHeight(newRow, cellsWidth));
 
 
         String groupInvalid = (String) model.get("groupInvalid");
@@ -63,71 +64,97 @@ public class DisabledPersonWriter extends RowWriter {
         Integer adaptationCount = UtilDisabledPerson.getIntegerStrAdaptation(adaptation);
         Integer all = groupInvalidFirstGroupCount + groupInvalidSecondGroupCount + groupInvalidThreeGroupCount + groupInvalidFourGroupCount;
 
-        GeneratorUtils.addCellText(newRow, 0, model.get("count"));
+
         GeneratorUtils.addCellText(newRow, 1, model.get("address"));
-        GeneratorUtils.addCellText(newRow,2,groupInvalid);
+        GeneratorUtils.addCellText(newRow, 2, groupInvalid);
 
-        GeneratorUtils.addCellText(newRow,3, armchair);
-        GeneratorUtils.addCellText(newRow, 4,single);
+        GeneratorUtils.addCellText(newRow, 3, armchair);
+        GeneratorUtils.addCellText(newRow, 4, single);
         GeneratorUtils.addCellText(newRow, 5, demands);
-        GeneratorUtils.addCellText(newRow,6, adaptation);
-        GeneratorUtils.addCellText(newRow,7, totals);
+        GeneratorUtils.addCellText(newRow, 6, adaptation);
+        GeneratorUtils.addCellText(newRow, 7, totals);
 
-        List<Long> cellsWidth = table.getCTTable().getTblGrid().getGridColList().stream().map(CTTableCol::getW).collect(Collectors.toList());
-        newRow.setH(GeneratorUtils.calculateRowHeight(newRow, cellsWidth));
 
-        mergeCells();
+        GeneratorUtils.addCellText(newRow, 0, model.get("count"));
 
         if (needTableBreak()) {
             table.getCTTable().removeTr(table.getCTTable().sizeOfTrArray() - 1);
             sliceTable();
             writeRow(model);
-        }
-        else {
+        } else {
             countData.add(all);
             countData.addFirstGroup(groupInvalidFirstGroupCount);
             countData.addSecondGroup(groupInvalidSecondGroupCount);
             countData.addThreeGroup(groupInvalidThreeGroupCount);
             countData.addFourGroup(groupInvalidFourGroupCount);
-            countData.addArmchairStroller(countArmchair, lonelySingle, demandsCount,adaptationCount);
+            countData.addArmchairStroller(countArmchair, lonelySingle, demandsCount, adaptationCount);
         }
-
     }
 
-    public void mergeCells(){
+    public void mergeCells() {
         int rowLength = table.getCTTable().getTrArray().length;
-        if (rowLength > 8){
-            int i = rowLength -(rowLength - 8);
-            String lastGrupInv = GeneratorUtils.getCellText(table.getCTTable().getTrArray(i), 2);
-            String lastGrupInvReturn = lastGrupInv.substring(0);
-            String curGrupInv = lastGrupInvReturn;
+        System.out.println("rowLength : " + rowLength);
+        if (rowLength > 9) {
+            int i = rowLength - 1;//y
+            System.out.println(" i = " + i);
 
-            while (lastGrupInvReturn.equals(curGrupInv) && i >= 8){
-                String curGrupInvNext = GeneratorUtils.getCellText(table.getCTTable().getTrArray(i - 10), 2);
-                System.out.println("5");
-                curGrupInv = !curGrupInvNext.trim().isEmpty() ?
-                        curGrupInvNext.substring(0) :
-                        curGrupInvNext;
+            String lastAddress = GeneratorUtils.getCellText(table.getCTTable().getTrArray(i), 1);
+            System.out.println("lastAddress : " + lastAddress);
+            String lastAddressReturn = lastAddress.substring(0);//, lastSqOForm.lastIndexOf("-")
+            System.out.println("lastAddressReturn : " + lastAddressReturn);
+            String curAddress = lastAddressReturn;
+
+            while (lastAddressReturn.equals(curAddress) && i >= 9) {
+                String curAddressNext = GeneratorUtils.getCellText(table.getCTTable().getTrArray(i - 1), 1);
+                System.out.println("curAddressNext : " + curAddressNext);
+                curAddress = !curAddressNext.trim().isEmpty() ?
+                        curAddressNext.substring(0) : //, curSqOFormNext.lastIndexOf("-")
+                        curAddressNext;
+                System.out.println("curAddress : " + curAddress);
                 i--;
-                System.out.println(i);
+                System.out.println("i = " + i);
             }
             final int firstRowInd = i + 1;
+            System.out.println("firstRowInd = : " + firstRowInd);
 
-            System.out.println(firstRowInd);
-            System.out.println("=====");
-            //table.getCTTable().getTrArray()[firstRowInd].getTcArray()[0].setRowSpan(rowLength - firstRowInd);
+
             table.getCTTable().getTrArray()[firstRowInd].getTcArray()[0].setRowSpan(rowLength - firstRowInd);
             table.getCTTable().getTrArray()[firstRowInd].getTcArray()[1].setRowSpan(rowLength - firstRowInd);
             table.getCTTable().getTrArray()[firstRowInd].getTcArray()[7].setRowSpan(rowLength - firstRowInd);
 
-
             table.getCTTable().getTrList().stream()
                     .filter(tr -> table.getCTTable().getTrList().indexOf(tr) > firstRowInd)
-                    .forEach(tr -> GeneratorUtils.addCellText(tr,1,""));
+                    .forEach(tr -> GeneratorUtils.addCellText(tr, 0, ""));
             List<Long> cellsWidth = table.getCTTable().getTblGrid().getGridColList().stream().map(CTTableCol::getW).collect(Collectors.toList());
             table.getCTTable().getTrList().stream()
                     .filter(tr -> table.getCTTable().getTrList().indexOf(tr) >= firstRowInd)
                     .forEach(tr -> tr.setH(GeneratorUtils.calculateRowHeight(tr, cellsWidth)));
+
+
+        }
+    }
+
+    private void mergeCellsAddress() {
+        String curAddress = "";
+        int i = 0, j = 0;
+        List<CTTableRow> list = table.getCTTable().getTrList();
+        for (CTTableRow row : list) {
+            if (row.equals(table.getCTTable().getTrArray(0))) continue;
+            if (row.getTcArray(1).getTxBody().getPArray(0).getRArray().length > 0) {
+                String address = GeneratorUtils.getCellText(row, 1);
+                if (!address.equals(curAddress)) {
+                    i++;
+                    j = list.indexOf(row);
+                    curAddress = address;
+                } else {
+                    CTTableRow r = table.getCTTable().getTrArray(j);
+                    int k = list.indexOf(row);
+                    r.getTcArray(0).setRowSpan(1 + k - j);
+                    r.getTcArray(1).setRowSpan(1 + k - j);
+                    r.getTcArray(7).setRowSpan(1 + k - j);
+                }
+                GeneratorUtils.addCellText(row, 0, i);
+            }
         }
     }
 
@@ -195,14 +222,21 @@ public class DisabledPersonWriter extends RowWriter {
     }
 
     @Override
+    public void endSlideTable() {
+        for (int i = 8; i > 0; i--) table.getCTTable().removeTr(i);
+        mergeCellsAddress();
+
+        table.setAnchor(new Rectangle(Double.valueOf(prevTableRect.getX()).intValue(),
+                Double.valueOf(prevTableRect.getY()).intValue(),
+                Double.valueOf(table.getAnchor().getWidth()).intValue(),
+                Double.valueOf(table.getCTTable().getTrList().stream().mapToDouble(CTTableRow::getH).sum() / Units.EMU_PER_POINT).intValue()
+        ));
+    }
+
+    @Override
     public void sliceTable() {
         endSlideTable();
 
-        if (shapesToDelete.get(slide) != null) {
-            shapesToDelete.get(slide).add(slide.getShapes().get(3));
-        } else {
-            shapesToDelete.put(slide, Lists.newArrayList(slide.getShapes().get(3)));
-        }
 
         XSLFSlide newSlide = pptx.createSlide();
         newSlide.importContent(pptx.getSlides().get(0));
@@ -211,17 +245,17 @@ public class DisabledPersonWriter extends RowWriter {
         prevTableRect = captionShape.getAnchor().getBounds();
         captionShape.getXmlObject().set(slide.getShapes().get(0).getXmlObject().copy());
 
-        Integer lastPageNumber = Integer.parseInt(((XSLFTextBox) slide.getShapes().get(3)).getText());
-        XSLFTextBox pageNUmberBox = (XSLFTextBox) newSlide.getShapes().get(1);
-        pageNUmberBox.setText("" + (lastPageNumber + 1));
+//        Integer lastPageNumber = Integer.parseInt(((XSLFTextBox) slide.getShapes().get(6)).getText());
+//        XSLFTextBox pageNumberBox = (XSLFTextBox) newSlide.getShapes().get(6);
+//        pageNumberBox.setText("" + (lastPageNumber + 1));
 
         slide = newSlide;
         table = (XSLFTable) slide.getShapes().get(3);
 
         if (shapesToDelete.get(slide) != null) {
-            shapesToDelete.get(slide).add(slide.getShapes().get(3));
+            shapesToDelete.get(slide).add(slide.getShapes().get(2));
         } else {
-            shapesToDelete.put(slide, Lists.newArrayList(slide.getShapes().get(3)));
+            shapesToDelete.put(slide, Lists.newArrayList(slide.getShapes().get(2)));
         }
     }
 
@@ -330,7 +364,7 @@ public class DisabledPersonWriter extends RowWriter {
         }
 
         public void add(Integer all, Integer groupFirst, Integer groupSecond, Integer groupThree, Integer groupFour) {
-            if (all != 0) countAll = countAll+all;
+            if (all != 0) countAll = countAll + all;
             if (groupFirst != 0) count1Group = count1Group + groupFirst;
             if (groupSecond != 0) count2Group = count2Group + groupSecond;
             if (groupThree != 0) count3Group = count3Group + groupThree;
@@ -338,30 +372,30 @@ public class DisabledPersonWriter extends RowWriter {
         }
 
         public void add(Integer all) {
-            if (all != 0) countAll = countAll+all;
+            if (all != 0) countAll = countAll + all;
         }
 
-        public void addFirstGroup(Integer groupInvalidFirstGroupCount){
-            if (groupInvalidFirstGroupCount !=0) count1Group = count1Group + groupInvalidFirstGroupCount;
+        public void addFirstGroup(Integer groupInvalidFirstGroupCount) {
+            if (groupInvalidFirstGroupCount != 0) count1Group = count1Group + groupInvalidFirstGroupCount;
         }
 
-        public void addSecondGroup(Integer groupInvalidSecondGroupCount){
-            if (groupInvalidSecondGroupCount !=0) count2Group = count2Group + groupInvalidSecondGroupCount;
+        public void addSecondGroup(Integer groupInvalidSecondGroupCount) {
+            if (groupInvalidSecondGroupCount != 0) count2Group = count2Group + groupInvalidSecondGroupCount;
         }
 
-        public void addThreeGroup(Integer groupInvalidThreeGroupCount){
-            if (groupInvalidThreeGroupCount !=0) count3Group = count3Group + groupInvalidThreeGroupCount;
+        public void addThreeGroup(Integer groupInvalidThreeGroupCount) {
+            if (groupInvalidThreeGroupCount != 0) count3Group = count3Group + groupInvalidThreeGroupCount;
         }
 
-        public void addFourGroup(Integer groupInvalidFourGroupCount){
-            if (groupInvalidFourGroupCount !=0) count4Group = count4Group + groupInvalidFourGroupCount;
+        public void addFourGroup(Integer groupInvalidFourGroupCount) {
+            if (groupInvalidFourGroupCount != 0) count4Group = count4Group + groupInvalidFourGroupCount;
         }
 
-        public void addArmchairStroller(Integer countArmchair,Integer lonelySingle, Integer demendsCount, Integer adaptationCount){
-            if (countArmchair !=0) countArmchairStroller = countArmchairStroller + countArmchair;
-            if (lonelySingle !=0) lonelyAccomodation = lonelyAccomodation + lonelySingle;
+        public void addArmchairStroller(Integer countArmchair, Integer lonelySingle, Integer demendsCount, Integer adaptationCount) {
+            if (countArmchair != 0) countArmchairStroller = countArmchairStroller + countArmchair;
+            if (lonelySingle != 0) lonelyAccomodation = lonelyAccomodation + lonelySingle;
             if (demendsCount != 0) improvementOfConditions = improvementOfConditions + demendsCount;
-            if (adaptationCount !=0) adaptation = adaptation + adaptationCount;
+            if (adaptationCount != 0) adaptation = adaptation + adaptationCount;
         }
     }
 }

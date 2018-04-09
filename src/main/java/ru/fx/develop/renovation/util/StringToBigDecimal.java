@@ -11,7 +11,7 @@ public class StringToBigDecimal {
     static final String COMMA_AS_STRING = ",";
 
     public static BigDecimal toBigDecimal(final String value) {
-        if (value != null){
+        if (value != null) {
             boolean negativeNumber = false;
 
             if (value.contains("(") && value.contains(")"))
@@ -31,7 +31,7 @@ public class StringToBigDecimal {
             if (lastPointPosition == -1 && lastCommaPosition == -1)
                 return new BigDecimal(parsedValue);
             //handle '45.3' and '4.550.000' case, only points are in the given String
-            if (lastPointPosition > -1 && lastCommaPosition == -1){
+            if (lastPointPosition > -1 && lastCommaPosition == -1) {
                 int firstPointPosition = parsedValue.indexOf(POINT);
                 if (firstPointPosition != lastPointPosition)
                     return new BigDecimal(parsedValue.replace(POINT_AS_STRING, EMPTY));
@@ -39,7 +39,7 @@ public class StringToBigDecimal {
                     return new BigDecimal(parsedValue);
             }
             //handle '45,3' and '4,550,000' case, only commas are in the given String
-            if (lastPointPosition == -1 && lastCommaPosition > -1){
+            if (lastPointPosition == -1 && lastCommaPosition > -1) {
                 int firstCommaPosition = parsedValue.indexOf(COMMA);
                 if (firstCommaPosition != lastCommaPosition)
                     return new BigDecimal(parsedValue.replace(COMMA_AS_STRING, EMPTY));
@@ -47,12 +47,12 @@ public class StringToBigDecimal {
                     return new BigDecimal(parsedValue.replace(COMMA, POINT));
             }
             //handle '2.345,04' case, points are in front of commas
-            if (lastPointPosition < lastCommaPosition){
+            if (lastPointPosition < lastCommaPosition) {
                 parsedValue = parsedValue.replace(POINT_AS_STRING, EMPTY);
                 return new BigDecimal(parsedValue.replace(COMMA, POINT));
             }
             //handle '2,345.04' case, commas are in front of points
-            if (lastCommaPosition < lastPointPosition){
+            if (lastCommaPosition < lastPointPosition) {
                 parsedValue = parsedValue.replace(COMMA_AS_STRING, EMPTY);
                 return new BigDecimal(parsedValue);
             }

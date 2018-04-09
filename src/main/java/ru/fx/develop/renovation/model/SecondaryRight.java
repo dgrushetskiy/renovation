@@ -82,13 +82,13 @@ public class SecondaryRight implements HouseParameters {
         return house;
     }
 
+    public void setHouse(House house) {
+        this.house = house;
+    }
+
     @Override
     public String getAddress() {
         return getHouse().getAddress();
-    }
-
-    public void setHouse(House house) {
-        this.house = house;
     }
 
     public String getKadNom() {

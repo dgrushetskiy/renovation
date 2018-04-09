@@ -12,42 +12,35 @@ import org.springframework.stereotype.Component;
 import ru.fx.develop.renovation.generator.writer.DisabledPersonWriter;
 import ru.fx.develop.renovation.generator.writer.HomeForDemolitionWriter;
 import ru.fx.develop.renovation.generator.writer.VeteranOrgWriter;
-import ru.fx.develop.renovation.model.*;
+import ru.fx.develop.renovation.model.House;
 import ru.fx.develop.renovation.service.GenerateService;
-import ru.fx.develop.renovation.util.DateUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.prefs.Preferences;
 
 @Component
 public class PptxAlbumGenerator {
 
-   // private static String dataReport = new House().getAddress();
-
-    private static final String FILE_PATH_DIR_OUTPUT = "D:\\Отчеты\\";
-    private static final String FILE_EXTENSION = ".pptx";
+    public static final int TEMPLATE_SLIDES_NUMBER = 1;
     public static final int SHAPE_TABLE_1 = 0;
-
     public static final int CELL_MARGIN_TOP = 12700;
     public static final int CELL_MARGIN_BOTTOM = 12700;
-
     public static final int TABLE_MARGIN_TOP = 20;
     public static final int TABLE_DEFAULT_ROW_HEIGHT = 152995;
+    //public static final String FILE_PATH_DIR_OUTPUT = "C:\\Отчеты\\";
+    private static final Preferences prefs = Preferences.userNodeForPackage(PptxAlbumGenerator.class);
+    public static final String FILE_EXTENSION = ".pptx";
+    private static XMLSlideShow pptx;
     @Autowired
     private GenerateService generateService;
-
-
-
     @Value("classpath:templates/report.pptx")
     private Resource reportTemplate;
-    private static XMLSlideShow pptx;
     private XSLFSlide currentSlide;
     private List<ContentsData> contentsData;
     private TableData tableData;
@@ -57,7 +50,7 @@ public class PptxAlbumGenerator {
         return tableData;
     }
 
-    public void generateReport(ObservableList<House> houseData){
+    public void generateReport(ObservableList<House> houseData) {
         try {
             contentsData = new ArrayList<>();
             pptx = new XMLSlideShow(reportTemplate.getInputStream());
@@ -66,27 +59,17 @@ public class PptxAlbumGenerator {
             currentSlide = pptx.createSlide();
             //импорт слайда с фигурами
             currentSlide.importContent(pptx.getSlides().get(0));
-//            List<Searchable> searchablesHouses = generateService.getSearchHouse()
-//            Searchable searchable = null;
-//            String model = resolveModelName(searchable);
 
             createSlideForHome(pptx, houseData);
-//            List<Searchable> searchableHouseList = generateService.getSearchHouse(houseData, new House().getUnom());
-//            searchableHouseList.stream()
-//                    .forEach(h ->{
-//                        createSlideForHome(h,pptx,houseData);
-//                    });
-
-           // createSlideForHome(searchableHouseList,pptx,houseData);
-
-
+            String filePathDirOutput = getFilePathDirOutput() + '\\';
 
             for (int i = 0; i < 1; i++) {
                 pptx.removeSlide(0);
             }
-           // String FILE_PATH_POWERPOINT_OUTPUT =
             houseData.forEach(house -> {
-                File file = new File(FILE_PATH_DIR_OUTPUT + house.getAddress() + " дата файла " +  DateUtil.format(LocalDate.now()) +   FILE_EXTENSION);
+
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH-mm-ss");
+                File file = new File(filePathDirOutput + house.getAddress() + " дата файла " + dateFormat.format(new Date()) + FILE_EXTENSION);
                 file.getParentFile().mkdirs();
                 FileOutputStream outputStream = null;
                 try {
@@ -108,84 +91,85 @@ public class PptxAlbumGenerator {
             });
 
 
-        } catch (IOException ex){
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
-    private void createSlideForHome(XMLSlideShow pptx, ObservableList<House> houseData){
+    public static String getFilePathDirOutput() {
+        String path = prefs.get("filePathDirOutput", null);
+        return path != null && new File(path).exists() ? path : null;
+    }
+
+    public static void setFilePathDirOutput(String path) {
+        prefs.put("filePathDirOutput", path);
+    }
+
+
+
+    private void createSlideForHome(XMLSlideShow pptx, ObservableList<House> houseData) {//Integer contentsSlidesNumber
         try {
             tableData = new TableData();
             tableData.setHomeForDemolitionPrimaryRightResult(generateService.dataPrimaryRight(houseData));//showDataHomeForDemolitionPrimary(houseDem));
-          //  tableData.setHomeForDemolitionSecondaryRightResult(generateService.dataSecondRight(houseData));
-          //  tableData.setHomeForDemolitionSecondaryRightResult(generateService.showDataHomeForDemolitionSecondary(houseDem));
+
+            //  tableData.setHomeForDemolitionSecondaryRightResult(generateService.dataSecondRight(houseData));
+            //  tableData.setHomeForDemolitionSecondaryRightResult(generateService.showDataHomeForDemolitionSecondary(houseDem));
             tableData.setVeteransOrgResult(generateService.dataVeteransOrg(houseData));
             tableData.setDisabledPersonResult(generateService.dataDisabledPerson(houseData));
 
             Integer firstSlide = pptx.getSlides().indexOf(currentSlide);
 
-            addTableNonHousing(pptx,tableData);
-            addTableVeteranOrg(pptx, tableData);
+
+            addTableNonHousing(pptx, tableData);
+
             addTableDisabledPerson(pptx, tableData);
-//            houseData.stream().forEach(house -> {
-//                getTableData().getHomeForDemolitionPrimaryRightResult();
-//                System.out.println(getTableData().getHomeForDemolitionPrimaryRightResult().size());
-//                getTableData().getVeteransOrgResult();
-//                System.out.println(getTableData().getVeteransOrgResult().size());
-//                getTableData().getDisabledPersonResult();
-//                System.out.println(getTableData().getDisabledPersonResult().size());
-//            });
+
+            addTableVeteranOrg(pptx, tableData);
+
             Integer lastSlide = pptx.getSlides().indexOf(currentSlide);
-            contentsData.add(new ContentsData(" ",lastSlide - firstSlide + 1));
+            contentsData.add(new ContentsData(houseData.toString(), lastSlide - firstSlide + 1));
 
             shapesToDelete.keySet().stream()
                     .forEach(slide -> shapesToDelete.get(slide).stream()
                             .forEach(slide::removeShape));
 
-        } catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    private void addTableNonHousing(XMLSlideShow pptx, TableData tableData){
+    private void addTableNonHousing(XMLSlideShow pptx, TableData tableData) {
         XSLFTable tableNonHousing = (XSLFTable) currentSlide.getShapes().get(1);
-        HomeForDemolitionWriter homeForDemolitionWriter = new HomeForDemolitionWriter(pptx, currentSlide, tableNonHousing);
-        if (tableData.getHomeForDemolitionPrimaryRightResult().isEmpty()){
-            homeForDemolitionWriter.writeNoData();
+        HomeForDemolitionWriter rowWriter = new HomeForDemolitionWriter(pptx, currentSlide, tableNonHousing);
+        if (tableData.getHomeForDemolitionPrimaryRightResult().isEmpty()) {
+            rowWriter.writeNoData();
         } else {
             tableData.getHomeForDemolitionPrimaryRightResult()
-                    .stream().forEach(homeForDemolitionWriter::writeRow);
-           // homeForDemolitionWriter.writeTotal();
-//            tableData.getHomeForDemolitionSecondaryRightResult()
-//                    .stream().forEach(homeForDemolitionWriter::writeRow);
+                    .stream().forEach(rowWriter::writeRow);
+            rowWriter.writeTotal();
 
-            homeForDemolitionWriter.writeTotal();
-           // homeForDemolitionWriter.mergeCells();
-
-            homeForDemolitionWriter.writeTotalRF();
-            homeForDemolitionWriter.writeTotalMoscow();
-            homeForDemolitionWriter.writeTotalFizYurFace();
-            homeForDemolitionWriter.writeTotalAll();
-
+            rowWriter.writeTotalRF();
+            rowWriter.writeTotalMoscow();
+            rowWriter.writeTotalFizYurFace();
+            rowWriter.writeTotalAll();
         }
+        rowWriter.endSlideTable();
 
-        homeForDemolitionWriter.endSlideTable();
-
-        homeForDemolitionWriter.getShapesToDelete().keySet().stream()
-                .forEach(slide ->{
-                    if (shapesToDelete.containsKey(slide)){
-                        shapesToDelete.get(slide).addAll(homeForDemolitionWriter.getShapesToDelete().get(slide));
-                    }else {
-                        shapesToDelete.put(slide,homeForDemolitionWriter.getShapesToDelete().get(slide));
+        rowWriter.getShapesToDelete().keySet().stream()
+                .forEach(slide -> {
+                    if (shapesToDelete.containsKey(slide)) {
+                        shapesToDelete.get(slide).addAll(rowWriter.getShapesToDelete().get(slide));
+                    } else {
+                        shapesToDelete.put(slide, rowWriter.getShapesToDelete().get(slide));
                     }
                 });
-        currentSlide = homeForDemolitionWriter.getSlide();
+        currentSlide = rowWriter.getSlide();
     }
 
-    private void addTableVeteranOrg(XMLSlideShow pptx, TableData tableData){
+    private void addTableVeteranOrg(XMLSlideShow pptx, TableData tableData) {
         XSLFTable tableVeteranOrganisations = (XSLFTable) currentSlide.getShapes().get(5);
         VeteranOrgWriter veteranOrgWriter = new VeteranOrgWriter(pptx, currentSlide, tableVeteranOrganisations);
-        if (tableData.getVeteransOrgResult().isEmpty()){
+        if (tableData.getVeteransOrgResult().isEmpty()) {
             veteranOrgWriter.writeNoData();
         } else {
             tableData.getVeteransOrgResult()
@@ -196,22 +180,22 @@ public class PptxAlbumGenerator {
 
         veteranOrgWriter.endSlideTable();
         veteranOrgWriter.getShapesToDelete().keySet().stream()
-                .forEach(slide ->{
-                    if (shapesToDelete.containsKey(slide)){
+                .forEach(slide -> {
+                    if (shapesToDelete.containsKey(slide)) {
                         shapesToDelete.get(slide).addAll(veteranOrgWriter.getShapesToDelete().get(slide));
-                    }else {
-                        shapesToDelete.put(slide,veteranOrgWriter.getShapesToDelete().get(slide));
+                    } else {
+                        shapesToDelete.put(slide, veteranOrgWriter.getShapesToDelete().get(slide));
                     }
                 });
 
         currentSlide = veteranOrgWriter.getSlide();
     }
 
-    private void addTableDisabledPerson(XMLSlideShow pptx, TableData tableData){
+    private void addTableDisabledPerson(XMLSlideShow pptx, TableData tableData) {
         XSLFTable tableDisablePeople = (XSLFTable) currentSlide.getShapes().get(3);
-        DisabledPersonWriter disabledPersonWriter = new DisabledPersonWriter(pptx, currentSlide,tableDisablePeople);
+        DisabledPersonWriter disabledPersonWriter = new DisabledPersonWriter(pptx, currentSlide, tableDisablePeople);
 
-        if (tableData.getDisabledPersonResult().isEmpty()){
+        if (tableData.getDisabledPersonResult().isEmpty()) {
             disabledPersonWriter.writeNoData();
         } else {
             tableData.getDisabledPersonResult()
@@ -227,34 +211,32 @@ public class PptxAlbumGenerator {
 
         disabledPersonWriter.endSlideTable();
         disabledPersonWriter.getShapesToDelete().keySet().stream()
-                .forEach(slide ->{
-                            if (shapesToDelete.containsKey(slide)) {
-                                shapesToDelete.get(slide).addAll(disabledPersonWriter.getShapesToDelete().get(slide));
-                            }else {
-                                shapesToDelete.put(slide, disabledPersonWriter.getShapesToDelete().get(slide));
-                            }
+                .forEach(slide -> {
+                    if (shapesToDelete.containsKey(slide)) {
+                        shapesToDelete.get(slide).addAll(disabledPersonWriter.getShapesToDelete().get(slide));
+                    } else {
+                        shapesToDelete.put(slide, disabledPersonWriter.getShapesToDelete().get(slide));
+                    }
                 });
 
         currentSlide = disabledPersonWriter.getSlide();
     }
 
-//    private String resolveModelName(Searchable searchableHouse){
-//        if (searchableHouse instanceof PrimaryRight) return "PrimaryRight";
-//        if (searchableHouse instanceof SecondaryRight) return "SecondaryRight";
-//        if (searchableHouse instanceof ShareHolder) return "ShareHolder";
-//        if (searchableHouse instanceof DisabledPeople) return "DisabledPeople";
-//        if (searchableHouse instanceof VeteranOrg) return "VeteranOrg";
-//        return null;
-//    }
-
-
-
-    public class TableData{
+    public class TableData {
         List<Map> HomeForDemolitionPrimaryRightResult = new ArrayList<>();
         List<Map> HomeForDemolitionSecondaryRightResult = new ArrayList<>();
         List<Map> HomeForDemolitionShareHolderResult = new ArrayList<>();
         List<Map> DisabledPersonResult = new ArrayList<>();
         List<Map> VeteransOrgResult = new ArrayList<>();
+        BigDecimal sqrOFormHouse;
+
+        public BigDecimal getSqrOFormHouse() {
+            return sqrOFormHouse;
+        }
+
+        public void setSqrOFormHouse(BigDecimal sqrOFormHouse) {
+            this.sqrOFormHouse = sqrOFormHouse;
+        }
 
         public List<Map> getHomeForDemolitionPrimaryRightResult() {
             return HomeForDemolitionPrimaryRightResult;
@@ -297,7 +279,7 @@ public class PptxAlbumGenerator {
         }
     }
 
-    public class ContentsData{
+    public class ContentsData {
         private String name;
         private Integer page;
 

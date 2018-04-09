@@ -5,7 +5,6 @@ import ru.fx.develop.renovation.model.fabric.HouseParameters;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.LocalDate;
 
 @Entity
@@ -149,6 +148,10 @@ public class DisabledPeople implements HouseParameters {
         return address;
     }
 
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
     @Override
     public String getVidPrava() {
         return null;
@@ -157,10 +160,6 @@ public class DisabledPeople implements HouseParameters {
     @Override
     public BigDecimal getSqrOForm() {
         return null;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 
     public String getApartment() {
@@ -288,8 +287,8 @@ public class DisabledPeople implements HouseParameters {
         if (this == o) return true;
         if (o instanceof DisabledPeople) return false;
         DisabledPeople other = (DisabledPeople) o;
-        if (id != null){
-            if (!id.equals(other.id)){
+        if (id != null) {
+            if (!id.equals(other.id)) {
                 return false;
             }
         }

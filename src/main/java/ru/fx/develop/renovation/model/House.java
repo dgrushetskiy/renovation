@@ -4,22 +4,20 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "house")
 @Cacheable(false)
-public class House implements Serializable{
+public class House implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    @Column(name = "id", nullable = false, unique = true)
 //    private Long id;
     @Column(name = "unom", nullable = false, unique = true)
     private Long unom;
-    @Column(name = "ao",length = 10)
+    @Column(name = "ao", length = 10)
     private String ao;
     @Column(name = "mr", length = 20)
     private String mr;
@@ -27,16 +25,16 @@ public class House implements Serializable{
     private String address;
     @Column(name = "kad_nom", length = 100)
     private String kadNom;
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)
     //@JoinTable(name = "primary_rights", joinColumns = )
     private Set<PrimaryRight> primaryRightSet = new HashSet<>();
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SecondaryRight> secondaryRightSet = new HashSet<>();
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ShareHolder> shareHolderSet = new HashSet<>();
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<VeteranOrg> veteranOrgSet = new HashSet<>();
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<DisabledPeople> disabledPeopleSet = new HashSet<>();
 
     public House() {
@@ -46,12 +44,12 @@ public class House implements Serializable{
         this.address = address;
     }
 
-    public House(Long unom, String address){
+    public House(Long unom, String address) {
         this.unom = unom;
         this.address = address;
     }
 
-    public House(Long unom,String address, Set<PrimaryRight> primaryRightSet, Set<SecondaryRight> secondaryRightSet, Set<ShareHolder> shareHolderSet, Set<VeteranOrg> veteranOrgSet, Set<DisabledPeople> disabledPeopleSet) {
+    public House(Long unom, String address, Set<PrimaryRight> primaryRightSet, Set<SecondaryRight> secondaryRightSet, Set<ShareHolder> shareHolderSet, Set<VeteranOrg> veteranOrgSet, Set<DisabledPeople> disabledPeopleSet) {
         this.unom = unom;
         this.address = address;
         this.primaryRightSet = primaryRightSet;
@@ -67,7 +65,7 @@ public class House implements Serializable{
         this.address = address;
     }
 
-    public House( Long unom, String ao, String mr, String address, String kadNom) {
+    public House(Long unom, String ao, String mr, String address, String kadNom) {
 
         this.unom = unom;
         this.ao = ao;
@@ -86,7 +84,6 @@ public class House implements Serializable{
         this.veteranOrgSet = veteranOrgSet;
         this.disabledPeopleSet = disabledPeopleSet;
     }
-
 
 
     public House(Long unom, String ao, String mr, String address, String kadNom, Set<PrimaryRight> primaryRightSet, Set<SecondaryRight> secondaryRightSet, Set<ShareHolder> shareHolderSet, Set<VeteranOrg> veteranOrgSet, Set<DisabledPeople> disabledPeopleSet) {
@@ -158,7 +155,7 @@ public class House implements Serializable{
         this.primaryRightSet = primaryRightSet;
     }
 
-    public void addPrimaryRights(PrimaryRight primaryRight){
+    public void addPrimaryRights(PrimaryRight primaryRight) {
         primaryRight.setHouse(this);
         primaryRightSet.add(primaryRight);
     }
@@ -198,12 +195,12 @@ public class House implements Serializable{
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof House)){
+        if (!(o instanceof House)) {
             return false;
         }
         House other = (House) o;
-        if (unom != null){
-            if (!unom.equals(other.unom)){
+        if (unom != null) {
+            if (!unom.equals(other.unom)) {
                 return false;
             }
         }

@@ -5,6 +5,7 @@ import org.apache.poi.xslf.usermodel.XMLSlideShow;
 import org.apache.poi.xslf.usermodel.XSLFShape;
 import org.apache.poi.xslf.usermodel.XSLFSlide;
 import org.apache.poi.xslf.usermodel.XSLFTable;
+import org.openxmlformats.schemas.drawingml.x2006.main.CTTable;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTableCol;
 import org.openxmlformats.schemas.drawingml.x2006.main.CTTableRow;
 import ru.fx.develop.renovation.generator.GeneratorUtils;
@@ -21,7 +22,7 @@ public abstract class RowWriter {
     protected XSLFSlide slide;
     protected XSLFTable table;
     protected Rectangle prevTableRect;
-    protected Map<XSLFSlide, java.util.List<XSLFShape>> shapesToDelete = new HashMap<>();
+    protected Map<XSLFSlide, List<XSLFShape>> shapesToDelete = new HashMap<>();
     protected double dataHeight;
 
     public RowWriter(XMLSlideShow pptx, XSLFSlide slide, XSLFTable table) {
@@ -59,7 +60,7 @@ public abstract class RowWriter {
         return dataHeight > pptx.getPageSize().getHeight();
     }
 
-    public void writeRow(Map model){
+    public void writeRow(Map model) {
         CTTableRow newRow = table.getCTTable().addNewTr();
         newRow.set(table.getCTTable().getTrArray(1));
         GeneratorUtils.addCellText(newRow, 0, model.get("count"));
@@ -78,29 +79,32 @@ public abstract class RowWriter {
         }
     }
 
+    static void ctTableRowArray(String curAddress, int i, int j, List<CTTableRow> list, CTTable ctTable) {
+        for (CTTableRow row : list) {
+            if (row.equals(ctTable.getTrArray(0))) continue;
+            if (row.getTcArray(1).getTxBody().getPArray(0).getRArray().length > 0) {
+                String address = GeneratorUtils.getCellText(row, 1);
+                if (!address.equals(curAddress)) {
+                    i++;
+                    j = list.indexOf(row);
+                    curAddress = address;
+                } else {
+                    CTTableRow r = ctTable.getTrArray(j);
+                    int k = list.indexOf(row);
+                    r.getTcArray(0).setRowSpan(1 + k - j);
+                    r.getTcArray(1).setRowSpan(1 + k - j);
+                }
+                GeneratorUtils.addCellText(row, 0, i);
+            }
+        }
+    }
+
     public abstract void writeTotal();
 
     public abstract void writeNoData();
 
-    public  void endSlideTable(){
-        table.getCTTable().removeTr(7);
-        table.getCTTable().removeTr(6);
-        table.getCTTable().removeTr(5);
-        table.getCTTable().removeTr(4);
-        table.getCTTable().removeTr(3);
-        table.getCTTable().removeTr(2);
-        table.getCTTable().removeTr(1);
+    public abstract void endSlideTable();
 
-        // table.getCTTable().addNewTr().getTcArray(6);
-
-
-        table.setAnchor(new Rectangle(Double.valueOf(prevTableRect.getX()).intValue(),
-                Double.valueOf(prevTableRect.getY()).intValue(),
-                Double.valueOf(table.getAnchor().getWidth()).intValue(),
-                Double.valueOf(table.getCTTable().getTrList().stream().mapToDouble(CTTableRow::getH).sum() / Units.EMU_PER_POINT).intValue()
-        ));
-
-    }
 
     public abstract void sliceTable();
 

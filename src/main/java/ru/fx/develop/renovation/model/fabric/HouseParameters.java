@@ -13,4 +13,5 @@ public interface HouseParameters extends Serializable {
     String getVidPrava();
 
     BigDecimal getSqrOForm();
+
 }

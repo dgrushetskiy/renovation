@@ -1,9 +1,7 @@
 package ru.fx.develop.renovation.util;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -35,8 +33,8 @@ public class DateUtil {
         return DATE_FORMATTER.format(date);
     }
 
-    public static String format(LocalDateTime dateTime){
-        if (dateTime == null){
+    public static String format(LocalDateTime dateTime) {
+        if (dateTime == null) {
             return null;
         }
         return DATE_FORMATTER.format(dateTime);

@@ -34,7 +34,7 @@ public class PrimaryRight implements HouseParameters {
     public PrimaryRight() {
     }
 
-    public PrimaryRight(House house, String vidPrava, BigDecimal sqrOForm ) {
+    public PrimaryRight(House house, String vidPrava, BigDecimal sqrOForm) {
         this.house = house;
         this.sqrOForm = sqrOForm;
         this.vidPrava = vidPrava;
@@ -62,13 +62,13 @@ public class PrimaryRight implements HouseParameters {
         return house;
     }
 
+    public void setHouse(House house) {
+        this.house = house;
+    }
+
     @Override
     public String getAddress() {
         return getHouse().getAddress();
-    }
-
-    public void setHouse(House house) {
-        this.house = house;
     }
 
     public String getKadNom() {

@@ -10,7 +10,7 @@ import ru.fx.develop.renovation.preloader.TestPreloader;
 
 import java.util.Arrays;
 
-public abstract class AbstractJavaFXApplicationSupport extends Application{
+public abstract class AbstractJavaFXApplicationSupport extends Application {
 
     private static String[] saveArgs;// аргументы при старте (если они есть)
 

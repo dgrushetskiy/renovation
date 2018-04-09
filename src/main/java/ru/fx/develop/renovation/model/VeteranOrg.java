@@ -53,7 +53,7 @@ public class VeteranOrg implements HouseParameters {
         this.id = id;
     }
 
-    public  House getHouse() {
+    public House getHouse() {
         return house;
     }
 

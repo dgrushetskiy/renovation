@@ -1,5 +1,6 @@
 package ru.fx.develop.renovation.controller;
 
+import com.sun.glass.ui.Window;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -7,6 +8,9 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
@@ -24,21 +28,26 @@ import ru.fx.develop.renovation.fxml.StartView;
 import ru.fx.develop.renovation.generator.PptxAlbumGenerator;
 import ru.fx.develop.renovation.model.House;
 import ru.fx.develop.renovation.service.HouseService;
-import ru.fx.develop.renovation.service.PrimaryRightsService;
 import ru.fx.develop.renovation.util.DateUtil;
 
+import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observable;
+import java.util.ResourceBundle;
+
+import static com.sun.glass.ui.CommonDialogs.showFolderChooser;
+import static ru.fx.develop.renovation.generator.PptxAlbumGenerator.getFilePathDirOutput;
+import static ru.fx.develop.renovation.generator.PptxAlbumGenerator.setFilePathDirOutput;
 
 @Component
 public class StartController extends Observable {
 
     public static final int MAX_PAGE_SHOW = 10;
-
-    private static final String FILE_PATH_EXCEL_OUTPUT = "E:/report/reportHouse.xlsx";
-    private static final String FILE_PATH_POWERPOINT_OUTPUT = "D:/Отчеты";
     private static final int PAGE_SIZE = 35;
     public static DataFormat CLIPBOARD_DATA_FORMAT = new DataFormat(House.class.getName());
     private ResourceBundle resourceBundle;
@@ -46,9 +55,6 @@ public class StartController extends Observable {
     private StartView startView;
     @Autowired
     private HouseService houseService;
-//    @Autowired
-//    private PrimaryRightsService primaryRightsService;
-
     private Page page;
     @Autowired
     private PptxAlbumGenerator albumGenerator;
@@ -115,6 +121,9 @@ public class StartController extends Observable {
 
 
     public StartController() {
+        // For Desktop.isDesktopSupported()
+        System.setProperty("java.awt.headless", "false");
+
     }
 
     @FXML
@@ -189,22 +198,44 @@ public class StartController extends Observable {
         buttonDeleteAllRows.setOnAction(event -> {
             removeAllRows();
         });
-
+        //
         buttonReport.setOnAction(event -> {
-           labelDataDocument.setText("Отчет создан : " + DateUtil.format(LocalDate.now()));
-           labelDirectory.setText("Отчет находится : " + FILE_PATH_POWERPOINT_OUTPUT);
-           reportPowerPointWrite();
+            String path = getFilePathDirOutput();
+            if (path == null) {
+                File selected = showFolderChooser(Window.getFocusedWindow(),
+                        new File(System.getProperty("user.home")), "Выберите папку для отчётов");
+                if (selected != null) setFilePathDirOutput(path = selected.getAbsolutePath());
+            }
+            if (path != null) {
+                labelDataDocument.setText("Отчет создан : " + DateUtil.format(LocalDate.now()));
+                labelDirectory.setText("Отчет находится : " + path);
+                reportPowerPointWrite();
+            }
+
         });
 
         buttonFile.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
-            File file = fileChooser.showOpenDialog(RenovationApplication.stage);
-            Image image = new Image(file.getAbsolutePath());
-            ImageView imageView = new ImageView(image);
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("Презентация PowerPoint", "*.pptx"));
+            String path = getFilePathDirOutput();
+            if (path != null) {
+                fileChooser.setInitialDirectory(new File(path));
+                File file = fileChooser.showOpenDialog(RenovationApplication.stage);
+                if (file != null && Desktop.isDesktopSupported()) {
+                    try {
+                        Desktop.getDesktop().open(file);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
         });
 
         paginationData.currentPageIndexProperty().addListener((observable, oldValue, newValue) -> fillTable(newValue.intValue()));
     }
+
     @SuppressWarnings("unchecked")
     private void reportPowerPointWrite() {
         housesData = tableViewHouseUpdata.getItems();
@@ -325,21 +356,21 @@ public class StartController extends Observable {
 
     private void showHousePrimaryRightDetals(House house) {
         if (house != null) {
-           // labelId.setText(String.valueOf(house.getId()));
+            // labelId.setText(String.valueOf(house.getId()));
             labelUnom.setText(String.valueOf(house.getUnom()));
             labelMr.setText(house.getMr());
             labelAddress.setText(house.getAddress());
-           // labelSOForm.setText(String.valueOf());
+            // labelSOForm.setText(String.valueOf());
             //labelVidPrava.setText(house.getVidPrava());
             //labelNameSubject.setText(house.getNameSubject());
         } else {
-           // labelId.setText("");
+            // labelId.setText("");
             labelUnom.setText("");
             labelMr.setText("");
             labelAddress.setText("");
-           // labelSOForm.setText("");
-           // labelVidPrava.setText("");
-           // labelNameSubject.setText("");
+            // labelSOForm.setText("");
+            // labelVidPrava.setText("");
+            // labelNameSubject.setText("");
         }
     }
 
