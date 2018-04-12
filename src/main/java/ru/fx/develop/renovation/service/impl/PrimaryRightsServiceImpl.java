@@ -21,4 +21,9 @@ public class PrimaryRightsServiceImpl implements PrimaryRightsService {
     public ObservableList<PrimaryRight> getByHouse(House house) {
         return FXCollections.observableArrayList(Lists.newArrayList(primaryRightRepository.findByHouseIn(house)));
     }
+
+    @Override
+    public ObservableList<PrimaryRight> getByHouseInAndVidPrava(House house) {
+        return FXCollections.observableArrayList(Lists.newArrayList(primaryRightRepository.houseVidPrava(house)));
+    }
 }

@@ -5,7 +5,7 @@ import ru.fx.develop.renovation.model.House;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-public interface HouseParameters extends Serializable {
+public interface HouseParameters extends Serializable{
     House getHouse();
 
     String getAddress();

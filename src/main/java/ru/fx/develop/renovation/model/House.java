@@ -26,7 +26,6 @@ public class House implements Serializable {
     @Column(name = "kad_nom", length = 100)
     private String kadNom;
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)
-    //@JoinTable(name = "primary_rights", joinColumns = )
     private Set<PrimaryRight> primaryRightSet = new HashSet<>();
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<SecondaryRight> secondaryRightSet = new HashSet<>();
@@ -98,14 +97,6 @@ public class House implements Serializable {
         this.veteranOrgSet = veteranOrgSet;
         this.disabledPeopleSet = disabledPeopleSet;
     }
-
-//    public Long getId() {
-//        return id;
-//    }
-//
-//    public void setId(Long id) {
-//        this.id = id;
-//    }
 
     public Long getUnom() {
         return unom;

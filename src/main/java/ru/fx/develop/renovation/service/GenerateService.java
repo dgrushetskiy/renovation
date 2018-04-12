@@ -120,7 +120,9 @@ public class GenerateService {
         //  showData(houses);
         List<House> primaryRightHouseUnom = houses.stream().collect(Collectors.toList());
         primaryRightHouseUnom.forEach(house -> {
+           // String vidPravaRed = "неопределено";
             List<PrimaryRight> primaryRightList = primaryRightsService.getByHouse(house);
+           //List<PrimaryRight> primaryRightList = primaryRightsService.getByHouseInAndVidPrava(house);
             System.out.println("house" + house);
 //            BigDecimal sqrOForm = primaryRightsService.getSumSqrOForm(house);
 //            List<BigDecimal> sqrOFormList = new ArrayList<>();
@@ -138,6 +140,14 @@ public class GenerateService {
         });
         return getResultOutPrRight();
     }
+
+
+//    public List<Map> dataPrimaryRightAndSecondaryRight(ObservableList<House> houses){
+//        List<PrimaryRight> primaryRightsHouse = new ArrayList<>();
+//        List<SecondaryRight> secondaryRightsHouse = new ArrayList<>();
+//
+//
+//    }
 
 
     @Transactional
@@ -210,14 +220,12 @@ public class GenerateService {
         System.out.println(" map : " + map);
         List<Map> result = new ArrayList<>();
 
-        int count = 1;
         for (PrimaryRight primaryRight : primaryRightList) {
             String house = String.valueOf(primaryRight.getHouse().getUnom());
             String address = primaryRight.getHouse().getAddress();
             String vidPrava = primaryRight.getVidPrava();
             String nameSubject = primaryRight.getNameSubject();
             BigDecimal sqrOForm = primaryRight.getSqrOForm();
-            String countNum = String.valueOf(count++);
             String unomNum = String.valueOf(primaryRight.getHouse().getUnom());
             //  BigDecimal sqrOFormHouse = getSqrOFormHouse();
             //   System.out.println("sqrOFormHouse =" + sqrOFormHouse);
@@ -225,7 +233,6 @@ public class GenerateService {
                     "vidPrava", vidPrava,
                     "sqrOForm", sqrOForm.toPlainString(),
                     "nameSubject", nameSubject,
-                    "count", countNum,
                     "unom", unomNum,//"sqrOFormHouse",sqrOFormHouse.toPlainString(),
                     "house", house);
             result.add(map);
@@ -264,17 +271,15 @@ public class GenerateService {
 
     private List<Map> getResultVeteransOrg(List<VeteranOrg> veteranOrgList) {
         List<Map> result = new ArrayList<>();
-        Map map = new HashMap(veteranOrgList.size());
-        int count = 1;
+
         for (VeteranOrg veteranOrg : veteranOrgList) {
             String address = veteranOrg.getHouse().getAddress();
             String vidPrava = veteranOrg.getVidPrava();
             BigDecimal sqrOForm = veteranOrg.getSqrOForm();
-            String countNum = String.valueOf(count++);
-            map = GenerateService.build("address", address,
+
+            Map map = GenerateService.build("address", address,
                     "vidPrava", vidPrava,
-                    "sqrOForm", sqrOForm.toPlainString(),
-                    "count", countNum);
+                    "sqrOForm", sqrOForm.toPlainString());
             result.add(map);
         }
         return result;
@@ -293,25 +298,21 @@ public class GenerateService {
 
     private List<Map> getResultInvalidPerson(List<DisabledPeople> disabledPeopleList) {
         List<Map> result = new ArrayList<>();
-        Map map = new HashMap(disabledPeopleList.size());
-        int count = 1;
         for (DisabledPeople disabledPeople : disabledPeopleList) {
             String address = disabledPeople.getAddress();
             Integer groupInvalid = disabledPeople.getGroupInvalid();
             Boolean armchairStr = disabledPeople.isArmchair();
-            Boolean singleStr = disabledPeople.isSingle();
+        //    Boolean singleStr = disabledPeople.isSingle();
             String demandsStr = disabledPeople.getDemands();
             String adaptationStr = disabledPeople.getDemands();
             Integer totalsStr = disabledPeople.getTotals();
-            String countNum = String.valueOf(count++);
-            map = GenerateService.build("address", address,
+            Map map = GenerateService.build("address", address,
                     "groupInvalid", UtilDisabledPerson.getIntegerInvalidGroup(groupInvalid),
                     "armchair", String.valueOf(armchairStr),
-                    "single", String.valueOf(singleStr),
+            //        "single", String.valueOf(singleStr),
                     "demands", UtilDisabledPerson.getStringToString(demandsStr),
                     "adaptation", UtilDisabledPerson.getStringToStringAdaptation(adaptationStr),
-                    "totals", String.valueOf(totalsStr),
-                    "count", countNum);
+                    "totals", String.valueOf(totalsStr));
             result.add(map);
         }
         return result;

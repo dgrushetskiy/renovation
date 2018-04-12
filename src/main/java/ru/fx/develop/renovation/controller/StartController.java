@@ -123,7 +123,6 @@ public class StartController extends Observable {
     public StartController() {
         // For Desktop.isDesktopSupported()
         System.setProperty("java.awt.headless", "false");
-
     }
 
     @FXML
@@ -144,7 +143,6 @@ public class StartController extends Observable {
         setupClearButtonField(adressSearchTextField);
         fillData();
         initListeners();
-
     }
 
     private void initListeners() {
@@ -230,9 +228,7 @@ public class StartController extends Observable {
                     }
                 }
             }
-
         });
-
         paginationData.currentPageIndexProperty().addListener((observable, oldValue, newValue) -> fillTable(newValue.intValue()));
     }
 

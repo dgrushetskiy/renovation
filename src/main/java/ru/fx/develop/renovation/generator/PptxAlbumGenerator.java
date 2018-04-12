@@ -26,14 +26,12 @@ import java.util.prefs.Preferences;
 
 @Component
 public class PptxAlbumGenerator {
-
     public static final int TEMPLATE_SLIDES_NUMBER = 1;
     public static final int SHAPE_TABLE_1 = 0;
     public static final int CELL_MARGIN_TOP = 12700;
     public static final int CELL_MARGIN_BOTTOM = 12700;
     public static final int TABLE_MARGIN_TOP = 20;
     public static final int TABLE_DEFAULT_ROW_HEIGHT = 152995;
-    //public static final String FILE_PATH_DIR_OUTPUT = "C:\\Отчеты\\";
     private static final Preferences prefs = Preferences.userNodeForPackage(PptxAlbumGenerator.class);
     public static final String FILE_EXTENSION = ".pptx";
     private static XMLSlideShow pptx;
@@ -147,11 +145,7 @@ public class PptxAlbumGenerator {
             tableData.getHomeForDemolitionPrimaryRightResult()
                     .stream().forEach(rowWriter::writeRow);
             rowWriter.writeTotal();
-
-            rowWriter.writeTotalRF();
-            rowWriter.writeTotalMoscow();
-            rowWriter.writeTotalFizYurFace();
-            rowWriter.writeTotalAll();
+            rowWriter.writeAllTotalsSquarm();
         }
         rowWriter.endSlideTable();
 
@@ -201,12 +195,7 @@ public class PptxAlbumGenerator {
             tableData.getDisabledPersonResult()
                     .stream()
                     .forEach(disabledPersonWriter::writeRow);
-            //disabledPersonWriter.mergeCells();
-            disabledPersonWriter.writeTotal();
-            disabledPersonWriter.writeCountFirstGroup();
-            disabledPersonWriter.writeCountSecondGroup();
-            disabledPersonWriter.writeCountThreeGroup();
-            disabledPersonWriter.writeCountFourGroup();
+            disabledPersonWriter.writeCountGrups();
         }
 
         disabledPersonWriter.endSlideTable();

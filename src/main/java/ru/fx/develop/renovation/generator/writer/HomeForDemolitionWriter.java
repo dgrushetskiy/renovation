@@ -95,7 +95,7 @@ public class HomeForDemolitionWriter extends RowWriter {
             String nameSubjectSc = (String) model.get("nameSubject");
             //  GeneratorUtils.addCellText(newRow, 0,  model.get("count"));//model.get("unom") + "-" +
             GeneratorUtils.addCellText(newRow, 1, address);
-            GeneratorUtils.addCellText(newRow, 2, vidPrava + " : " + nameSubject);
+            GeneratorUtils.addCellText(newRow, 2, vidPrava );
             GeneratorUtils.addCellText(newRow, 3, squareOForm);
             squareMoscow = squareOForm;
         } else {
@@ -225,6 +225,17 @@ public class HomeForDemolitionWriter extends RowWriter {
         newRow.setH(GeneratorUtils.calculateRowHeight(newRow, cellsWidth));
 
         GeneratorUtils.addCellText(newRow, 3, totalData.getSquareSumAll());
+    }
+
+    public void writeAllTotalsSquarm(){
+        if (totalData.getSquareSumSobRF()!=BigDecimal.ZERO){
+            writeTotalRF();
+        }if (totalData.getSquareSumMoscow()!=BigDecimal.ZERO){
+            writeTotalMoscow();
+        } if (totalData.getSquareSumFizLandUrL()!=BigDecimal.ZERO){
+            writeTotalFizYurFace();
+        }
+        writeTotalAll();
     }
 
 

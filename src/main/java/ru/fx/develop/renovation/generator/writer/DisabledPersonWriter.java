@@ -42,9 +42,9 @@ public class DisabledPersonWriter extends RowWriter {
         Boolean armchairBool = Boolean.parseBoolean(armchairStr);
         String armchair = UtilDisabledPerson.toStringYesNo(armchairBool);
 
-        String singleStr = (String) model.get("single");
-        Boolean singleBool = Boolean.parseBoolean(singleStr);
-        String single = UtilDisabledPerson.toStringYesNo(singleBool);
+//        String singleStr = (String) model.get("single");
+//        Boolean singleBool = Boolean.parseBoolean(singleStr);
+//        String single = UtilDisabledPerson.toStringYesNo(singleBool);
 
         String demands = (String) model.get("demands");
 
@@ -59,7 +59,7 @@ public class DisabledPersonWriter extends RowWriter {
         Integer groupInvalidThreeGroupCount = UtilDisabledPerson.getIntegerThreeGroup(groupInvalid);
         Integer groupInvalidFourGroupCount = UtilDisabledPerson.getIntegerFourGroup(groupInvalid);
         Integer countArmchair = UtilDisabledPerson.getBoolInteger(armchairBool);
-        Integer lonelySingle = UtilDisabledPerson.getBoolInteger(singleBool);
+       // Integer lonelySingle = UtilDisabledPerson.getBoolInteger(singleBool);
         Integer demandsCount = UtilDisabledPerson.getIntegerStr(demands);
         Integer adaptationCount = UtilDisabledPerson.getIntegerStrAdaptation(adaptation);
         Integer all = groupInvalidFirstGroupCount + groupInvalidSecondGroupCount + groupInvalidThreeGroupCount + groupInvalidFourGroupCount;
@@ -69,13 +69,10 @@ public class DisabledPersonWriter extends RowWriter {
         GeneratorUtils.addCellText(newRow, 2, groupInvalid);
 
         GeneratorUtils.addCellText(newRow, 3, armchair);
-        GeneratorUtils.addCellText(newRow, 4, single);
-        GeneratorUtils.addCellText(newRow, 5, demands);
-        GeneratorUtils.addCellText(newRow, 6, adaptation);
-        GeneratorUtils.addCellText(newRow, 7, totals);
-
-
-        GeneratorUtils.addCellText(newRow, 0, model.get("count"));
+       // GeneratorUtils.addCellText(newRow, 4, single);
+        GeneratorUtils.addCellText(newRow, 4, demands);
+        GeneratorUtils.addCellText(newRow, 5, adaptation);
+        GeneratorUtils.addCellText(newRow, 6, totals);
 
         if (needTableBreak()) {
             table.getCTTable().removeTr(table.getCTTable().sizeOfTrArray() - 1);
@@ -87,7 +84,7 @@ public class DisabledPersonWriter extends RowWriter {
             countData.addSecondGroup(groupInvalidSecondGroupCount);
             countData.addThreeGroup(groupInvalidThreeGroupCount);
             countData.addFourGroup(groupInvalidFourGroupCount);
-            countData.addArmchairStroller(countArmchair, lonelySingle, demandsCount, adaptationCount);
+           // countData.addArmchairStroller(countArmchair, lonelySingle, demandsCount, adaptationCount);
         }
     }
 
@@ -151,7 +148,7 @@ public class DisabledPersonWriter extends RowWriter {
                     int k = list.indexOf(row);
                     r.getTcArray(0).setRowSpan(1 + k - j);
                     r.getTcArray(1).setRowSpan(1 + k - j);
-                    r.getTcArray(7).setRowSpan(1 + k - j);
+                    r.getTcArray(6).setRowSpan(1 + k - j);
                 }
                 GeneratorUtils.addCellText(row, 0, i);
             }
@@ -163,12 +160,11 @@ public class DisabledPersonWriter extends RowWriter {
         CTTableRow newRow = table.getCTTable().addNewTr();
         newRow.set(table.getCTTable().getTrArray(3));
 
-        GeneratorUtils.addCellText(newRow, 3, countData.getCountArmchairStroller());
-        GeneratorUtils.addCellText(newRow, 4, countData.getLonelyAccomodation());
-        GeneratorUtils.addCellText(newRow, 5, countData.getImprovementOfConditions());
-        GeneratorUtils.addCellText(newRow, 6, countData.getAdaptation());
-        GeneratorUtils.addCellText(newRow, 7, countData.getCountAll());
-
+//        GeneratorUtils.addCellText(newRow, 3, countData.getCountArmchairStroller());
+//        GeneratorUtils.addCellText(newRow, 4, countData.getLonelyAccomodation());
+//        GeneratorUtils.addCellText(newRow, 5, countData.getImprovementOfConditions());
+//        GeneratorUtils.addCellText(newRow, 6, countData.getAdaptation());
+        GeneratorUtils.addCellText(newRow, 6, countData.getCountAll());
 
         List<Long> cellsWidth = table.getCTTable().getTblGrid().getGridColList().stream().map(CTTableCol::getW).collect(Collectors.toList());
         newRow.setH(GeneratorUtils.calculateRowHeight(newRow, cellsWidth));
@@ -176,42 +172,59 @@ public class DisabledPersonWriter extends RowWriter {
 
     public void writeCountFirstGroup() {
         CTTableRow newRow = table.getCTTable().addNewTr();
-        newRow.set(table.getCTTable().getTrArray(4));
 
-        GeneratorUtils.addCellText(newRow, 7, countData.getCount1Group());
+        newRow.set(table.getCTTable().getTrArray(4));
 
         List<Long> cellsWidth = table.getCTTable().getTblGrid().getGridColList().stream().map(CTTableCol::getW).collect(Collectors.toList());
         newRow.setH(GeneratorUtils.calculateRowHeight(newRow, cellsWidth));
+
+        GeneratorUtils.addCellText(newRow, 6, countData.getCount1Group());
     }
 
     public void writeCountSecondGroup() {
         CTTableRow newRow = table.getCTTable().addNewTr();
-        newRow.set(table.getCTTable().getTrArray(5));
 
-        GeneratorUtils.addCellText(newRow, 7, countData.getCount2Group());
+        newRow.set(table.getCTTable().getTrArray(5));
 
         List<Long> cellsWidth = table.getCTTable().getTblGrid().getGridColList().stream().map(CTTableCol::getW).collect(Collectors.toList());
         newRow.setH(GeneratorUtils.calculateRowHeight(newRow, cellsWidth));
+
+        GeneratorUtils.addCellText(newRow, 6, countData.getCount2Group());
     }
 
     public void writeCountThreeGroup() {
         CTTableRow newRow = table.getCTTable().addNewTr();
-        newRow.set(table.getCTTable().getTrArray(6));
-
-        GeneratorUtils.addCellText(newRow, 7, countData.getCount3Group());
 
         List<Long> cellsWidth = table.getCTTable().getTblGrid().getGridColList().stream().map(CTTableCol::getW).collect(Collectors.toList());
         newRow.setH(GeneratorUtils.calculateRowHeight(newRow, cellsWidth));
+
+        newRow.set(table.getCTTable().getTrArray(6));
+
+        GeneratorUtils.addCellText(newRow, 6, countData.getCount3Group());
     }
 
     public void writeCountFourGroup() {
         CTTableRow newRow = table.getCTTable().addNewTr();
-        newRow.set(table.getCTTable().getTrArray(7));
-
-        GeneratorUtils.addCellText(newRow, 7, countData.getCount4Group());
 
         List<Long> cellsWidth = table.getCTTable().getTblGrid().getGridColList().stream().map(CTTableCol::getW).collect(Collectors.toList());
         newRow.setH(GeneratorUtils.calculateRowHeight(newRow, cellsWidth));
+
+        newRow.set(table.getCTTable().getTrArray(7));
+
+        GeneratorUtils.addCellText(newRow, 6, countData.getCount4Group());
+    }
+
+    public void writeCountGrups(){
+        if (countData.getCount1Group()!= 0){
+            writeCountFirstGroup();
+        } if (countData.getCount2Group()!= 0){
+            writeCountSecondGroup();
+        } if (countData.getCount3Group()!= 0){
+            writeCountThreeGroup();
+        } if (countData.getCount4Group()!= 0){
+            writeCountFourGroup();
+        }
+        writeTotal();
     }
 
     @Override
@@ -223,8 +236,9 @@ public class DisabledPersonWriter extends RowWriter {
 
     @Override
     public void endSlideTable() {
-        for (int i = 8; i > 0; i--) table.getCTTable().removeTr(i);
+        for (int i = 7; i > 0; i--) table.getCTTable().removeTr(i);
         mergeCellsAddress();
+
 
         table.setAnchor(new Rectangle(Double.valueOf(prevTableRect.getX()).intValue(),
                 Double.valueOf(prevTableRect.getY()).intValue(),
@@ -237,17 +251,12 @@ public class DisabledPersonWriter extends RowWriter {
     public void sliceTable() {
         endSlideTable();
 
-
         XSLFSlide newSlide = pptx.createSlide();
         newSlide.importContent(pptx.getSlides().get(0));
 
         XSLFAutoShape captionShape = (XSLFAutoShape) newSlide.getShapes().get(0);
         prevTableRect = captionShape.getAnchor().getBounds();
         captionShape.getXmlObject().set(slide.getShapes().get(0).getXmlObject().copy());
-
-//        Integer lastPageNumber = Integer.parseInt(((XSLFTextBox) slide.getShapes().get(6)).getText());
-//        XSLFTextBox pageNumberBox = (XSLFTextBox) newSlide.getShapes().get(6);
-//        pageNumberBox.setText("" + (lastPageNumber + 1));
 
         slide = newSlide;
         table = (XSLFTable) slide.getShapes().get(3);

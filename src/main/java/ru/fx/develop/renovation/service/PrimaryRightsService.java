@@ -8,4 +8,6 @@ import ru.fx.develop.renovation.model.PrimaryRight;
 public interface PrimaryRightsService {
 
     ObservableList<PrimaryRight> getByHouse(House house);
+
+    ObservableList<PrimaryRight> getByHouseInAndVidPrava(House house);
 }

@@ -44,11 +44,10 @@ public class VeteranOrgWriter extends RowWriter {
 
         square = squareOForm;
 
-        GeneratorUtils.addCellText(newRow, 0, model.get("count"));
         GeneratorUtils.addCellText(newRow, 1, model.get("address"));
         GeneratorUtils.addCellText(newRow, 2, model.get("vidPrava"));
         GeneratorUtils.addCellText(newRow, 3, squareOForm);
-        //mergeCells();
+
 
         if (needTableBreak()) {
             table.getCTTable().removeTr(table.getCTTable().sizeOfTrArray() - 1);
@@ -78,12 +77,16 @@ public class VeteranOrgWriter extends RowWriter {
         GeneratorUtils.addCellText(newRow, 0, "В сносимых домах ветеранские организации отсутствуют");
     }
 
-    public void endSlideTable() {
-        table.getCTTable().removeTr(3);
-        table.getCTTable().removeTr(2);
-        table.getCTTable().removeTr(1);
+    private void mergeCellsTotal() {
+        String curAddress = "";
+        int i = 0, j = 0;
+        List<CTTableRow> list = table.getCTTable().getTrList();
+        ctTableRowArray(curAddress, i, j, list, table.getCTTable());
+    }
 
-        // table.getCTTable().addNewTr().getTcArray(6);
+    public void endSlideTable() {
+        for (int i = 3; i > 0; i--) table.getCTTable().removeTr(i);
+        mergeCellsTotal();
 
 
         table.setAnchor(new Rectangle(Double.valueOf(prevTableRect.getX()).intValue(),
