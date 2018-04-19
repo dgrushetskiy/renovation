@@ -1,6 +1,7 @@
 package ru.fx.develop.renovation.controller;
 
 import com.sun.glass.ui.Window;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -185,18 +186,27 @@ public class StartController extends Observable {
             }
             event.setDropCompleted(completed);
             event.consume();
+            buttonDeleteRow.setVisible(true);
+            buttonDeleteAllRows.setVisible(true);
+            buttonReport.setVisible(true);
         });
         //удаление строки
-        buttonDeleteRow.setDisable(false);
+        buttonDeleteRow.setVisible(false);
         buttonDeleteRow.setOnAction(event -> {
             House selectedItem = tableViewHouseUpdata.getSelectionModel().getSelectedItem();
             tableViewHouseUpdata.getItems().remove(selectedItem);
         });
         //удаление все строк
+        buttonDeleteAllRows.setVisible(false);
         buttonDeleteAllRows.setOnAction(event -> {
             removeAllRows();
+            buttonDeleteRow.setVisible(false);
+            buttonDeleteAllRows.setVisible(false);
+            buttonReport.setVisible(false);
+            buttonFile.setVisible(false);
         });
         //
+        buttonReport.setVisible(false);
         buttonReport.setOnAction(event -> {
             String path = getFilePathDirOutput();
             if (path == null) {
@@ -209,9 +219,10 @@ public class StartController extends Observable {
                 labelDirectory.setText("Отчет находится : " + path);
                 reportPowerPointWrite();
             }
+            buttonFile.setVisible(true);
 
         });
-
+        buttonFile.setVisible(false);
         buttonFile.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.getExtensionFilters().add(
@@ -229,7 +240,31 @@ public class StartController extends Observable {
                 }
             }
         });
-        paginationData.currentPageIndexProperty().addListener((observable, oldValue, newValue) -> fillTable(newValue.intValue()));
+
+        Platform.runLater(new Runnable() {
+
+            @Override
+            public void run() {
+                if (adressSearchTextField.getSelectedText().trim().length()==0){
+                    adressSearchTextField.requestFocus();
+                    paginationData.currentPageIndexProperty().addListener((observable, oldValue, newValue) -> fillTable(newValue.intValue() ));
+                } else if (mrSearchTextField.getSelectedText().trim().length()==0){
+                    mrSearchTextField.requestFocus();
+                    paginationData.currentPageIndexProperty().addListener((observable, oldValue, newValue) -> fillTableMr(newValue.intValue() ));
+                }
+
+            }
+        });
+    }
+
+    private boolean result(CustomTextField textField){
+        boolean result = false;
+        if (textField.equals(adressSearchTextField)){
+            adressSearchTextField.requestFocus();
+            result=true;
+        }
+
+        return result;
     }
 
     @SuppressWarnings("unchecked")
@@ -243,7 +278,7 @@ public class StartController extends Observable {
     }
 
     public void actionSearchMr(ActionEvent actionEvent) {
-        fillTable();
+        fillTableMr();
     }
 
     public void actionSearchAdress(ActionEvent actionEvent) {
@@ -251,10 +286,10 @@ public class StartController extends Observable {
     }
 
     private void fillData() {
-        if (mrSearchTextField.getText().trim().length() == 0) {
+        if (adressSearchTextField.getText().trim().length() == 0) {
             fillTable();
-        } else if (adressSearchTextField.getText().trim().length() == 0) {
-            fillTableAdress();
+        } else if (mrSearchTextField.getText().trim().length() == 0) {
+            fillTableMr();
         } else if (unomSearchTextField.getText().trim().length() == 0) {
             fillTableUnom();
         }
@@ -282,11 +317,11 @@ public class StartController extends Observable {
     }
 
     private void fillTable() {
-        if (mrSearchTextField.getText().trim().length() == 0) {
+        if (adressSearchTextField.getText().trim().length() == 0) {
             page = houseService.getAll(0, PAGE_SIZE);
 
         } else {
-            page = houseService.getAll(0, PAGE_SIZE, mrSearchTextField.getText());
+            page = houseService.getAll(0, PAGE_SIZE,adressSearchTextField.getText());
         }
         fillPagination(page);
         paginationData.setCurrentPageIndex(0);
@@ -294,10 +329,10 @@ public class StartController extends Observable {
     }
 
     private void fillTable(int pageNumber) {
-        if (mrSearchTextField.getText().trim().length() == 0) {
+        if (adressSearchTextField.getText().trim().length() == 0) {
             page = houseService.getAll(pageNumber, PAGE_SIZE);
         } else {
-            page = houseService.getAll(pageNumber, PAGE_SIZE, mrSearchTextField.getText());
+            page = houseService.getAll(pageNumber, PAGE_SIZE, adressSearchTextField.getText());
         }
         fillPagination(page);
         updateCountLabel(page.getTotalElements());
@@ -319,6 +354,26 @@ public class StartController extends Observable {
             page = houseService.getAllAddress(pageNumber, PAGE_SIZE);
         } else {
             page = houseService.getAllAddress(pageNumber, PAGE_SIZE, adressSearchTextField.getText());
+        }
+        fillPagination(page);
+        updateCountLabel(page.getTotalElements());
+    }
+
+    private void fillTableMr(){
+        if (mrSearchTextField.getText().trim().length() == 0){
+            page = houseService.getAllMr(0,PAGE_SIZE);
+        } else {
+            page = houseService.getAllMr(0, PAGE_SIZE, mrSearchTextField.getText());
+        }
+        fillPagination(page);
+        updateCountLabel(page.getTotalElements());
+    }
+
+    private void  fillTableMr(int pageNumber){
+        if (mrSearchTextField.getText().trim().length() == 0){
+            page = houseService.getAllMr(pageNumber,PAGE_SIZE);
+        } else {
+            page = houseService.getAllMr(pageNumber, PAGE_SIZE, mrSearchTextField.getText());
         }
         fillPagination(page);
         updateCountLabel(page.getTotalElements());

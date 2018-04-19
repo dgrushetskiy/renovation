@@ -24,12 +24,12 @@ public class HouseServiceImpl implements HouseService {
 
     @Override
     public Page getAll(int from, int count) {
-        return houseRepository.findAll(new PageRequest(from, count, Sort.Direction.ASC, "mr"));
+        return houseRepository.findAll(new PageRequest(from, count, Sort.Direction.ASC, "address"));
     }
 
     @Override
     public Page getAll(int from, int count, String... text) {
-        return houseRepository.findDistinctByMrContainingIgnoreCase(text[0], new PageRequest(from, count, Sort.Direction.ASC, "mr"));
+        return houseRepository.findDistinctByAddressContainingIgnoreCase(text[0], new PageRequest(from, count, Sort.Direction.ASC, "address"));
     }
 
     @Override
@@ -51,4 +51,16 @@ public class HouseServiceImpl implements HouseService {
     public Page getAllAddress(int from, int count, String... address) {
         return houseRepository.findDistinctByAddressContainingIgnoreCase(address[0], new PageRequest(from, count, Sort.Direction.ASC, "address"));
     }
+
+    @Override
+    public Page getAllMr(int from, int count) {
+        return houseRepository.findAll(new PageRequest(from, count, Sort.Direction.ASC, "mr"));
+    }
+
+    @Override
+    public Page getAllMr(int from, int count, String... mr) {
+        return houseRepository.findDistinctByMrContainingIgnoreCase(mr[0], new PageRequest(from, count, Sort.Direction.ASC, "mr"));
+    }
+
+
 }

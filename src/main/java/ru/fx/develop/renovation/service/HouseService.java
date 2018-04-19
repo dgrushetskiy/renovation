@@ -19,4 +19,8 @@ public interface HouseService {
     Page getAllAddress(int from, int count);
 
     Page getAllAddress(int from, int count, String... address);
+
+    Page getAllMr(int from, int count);
+
+    Page getAllMr(int from, int count, String... unom);
 }
